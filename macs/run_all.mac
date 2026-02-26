@@ -1,0 +1,45 @@
+# =========================================================
+# BL4S 2026: Master Automation Script
+# Runs all 4 shield configurations sequentially 
+# =========================================================
+
+# 1. PERFORMANCE & INITIALIZATION
+# Use 2 CPU cores to speed up the simulation (adjust if your PC has more/less)
+/run/numberOfThreads 2
+
+# Initialize the Geant4 kernel
+/run/initialize
+
+# Geant4 built-in tracker (prints a summary every 10k events)
+/run/printProgress 10000
+
+# Randomize the core seed based on system time (ensures realistic randomness)
+/random/setSeeds 12345 67890
+
+# 2. BEAM CONFIGURATION (5 GeV Protons)
+/MRB/gun/energy 5 GeV
+
+
+# =========================================================
+# 3. AUTOMATED DATA COLLECTION
+# =========================================================
+
+# --- RUN A: MRB 80/20 Baseline ---
+/MRB/setup/shieldConfig MRB_8020
+/analysis/setFileName SpallationData_MRB8020.csv
+/run/beamOn 100000
+
+# --- RUN B: MRB 60/40 Higher Mycelium ---
+/MRB/setup/shieldConfig MRB_6040
+/analysis/setFileName SpallationData_MRB6040.csv
+/run/beamOn 100000
+
+# --- RUN C: Lead Space Standard ---
+/MRB/setup/shieldConfig G4_Pb
+/analysis/setFileName SpallationData_Lead.csv
+/run/beamOn 100000
+
+# --- RUN D: HDPE Plastic Standard ---
+/MRB/setup/shieldConfig HDPE_Control
+/analysis/setFileName SpallationData_HDPE.csv
+/run/beamOn 100000
