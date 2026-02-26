@@ -1,0 +1,45 @@
+#include "MRBRunAction.hh"
+#include "G4AnalysisManager.hh"
+#include "G4Run.hh"
+
+MRBRunAction::MRBRunAction()
+: G4UserRunAction()
+{
+    // Initialize the analysis manager
+    auto analysisManager = G4AnalysisManager::Instance();
+    analysisManager->SetDefaultFileType("csv");
+    
+    // CRITICAL FOR MULTITHREADING: Merge all CPU threads into one single file!
+    analysisManager->SetNtupleMerging(true);
+
+    // Create the Ntuple (Data Table)
+  // Inside MRBRunAction::MRBRunAction()
+    analysisManager->CreateNtuple("SpallationData", "MRB Shielding Event Data");
+    analysisManager->CreateNtupleIColumn("EventID");       // Column 0
+    analysisManager->CreateNtupleIColumn("DWC0_Hits");     // Column 1
+    analysisManager->CreateNtupleIColumn("DWC1_Hits");     // Column 2
+    analysisManager->CreateNtupleIColumn("DWC2_Hits");     // Column 3
+    analysisManager->CreateNtupleDColumn("CaloEnergy_MeV");// Column 4
+    analysisManager->CreateNtupleIColumn("WENDI_Neutrons");// Column 5
+    analysisManager->FinishNtuple();
+}
+
+MRBRunAction::~MRBRunAction()
+{
+    // Geant4 handles deletion automatically
+}
+
+void MRBRunAction::BeginOfRunAction(const G4Run*)
+{
+    auto analysisManager = G4AnalysisManager::Instance();
+    // Leaving it blank tells Geant4 to use the filename specified in the macro!
+    analysisManager->OpenFile(); 
+}
+
+void MRBRunAction::EndOfRunAction(const G4Run*)
+{
+    // Save and close the file at the end of the run
+    auto analysisManager = G4AnalysisManager::Instance();
+    analysisManager->Write();
+    analysisManager->CloseFile();
+}

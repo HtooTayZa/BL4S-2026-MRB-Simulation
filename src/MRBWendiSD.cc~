@@ -1,0 +1,30 @@
+#include "MRBWendiSD.hh"
+#include "G4Step.hh"
+#include "G4Track.hh"
+#include "G4Neutron.hh"
+
+MRBWendiSD::MRBWendiSD(const G4String& name, MRBEventAction* eventAction)
+: G4VSensitiveDetector(name), fEventAction(eventAction)
+{}
+
+MRBWendiSD::~MRBWendiSD() {}
+
+void MRBWendiSD::Initialize(G4HCofThisEvent*) {}
+
+G4bool MRBWendiSD::ProcessHits(G4Step* step, G4TouchableHistory*)
+{
+    G4Track* track = step->GetTrack();
+    
+    // We strictly ONLY care about Neutrons in the WENDI detector
+    if (track->GetDefinition() != G4Neutron::NeutronDefinition()) return false;
+
+    // We only want to count the neutron ONCE when it enters the detector volume
+    if (step->GetPreStepPoint()->GetStepStatus() == fGeomBoundary) {
+        // Send the signal to the EventAction to tally the dose
+        fEventAction->AddWendiNeutron();
+    }
+
+    return true;
+}
+
+void MRBWendiSD::EndOfEvent(G4HCofThisEvent*) {}

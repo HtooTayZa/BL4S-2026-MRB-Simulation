@@ -1,0 +1,9 @@
+# Ignore the build folder completely
+build/
+
+# Ignore large output data files
+*.csv
+*.root
+
+# Ignore OS files
+.DS_Store

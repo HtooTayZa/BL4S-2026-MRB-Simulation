@@ -1,0 +1,32 @@
+#ifndef MRBPrimaryGeneratorAction_h
+#define MRBPrimaryGeneratorAction_h 1
+
+#include "G4VUserPrimaryGeneratorAction.hh"
+#include "G4ParticleGun.hh"
+#include "globals.hh"
+#include "G4GenericMessenger.hh" // Required for the UI commands
+
+class G4ParticleGun;
+class G4Event;
+
+class MRBPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
+{
+  public:
+    MRBPrimaryGeneratorAction();    
+    virtual ~MRBPrimaryGeneratorAction();
+
+    virtual void GeneratePrimaries(G4Event*);         
+
+    const G4ParticleGun* GetParticleGun() const { return fParticleGun; }
+  
+  private:
+    G4ParticleGun* fParticleGun;
+    
+    // --- NEW VARIABLES WE ADDED FOR BEAM REALISM ---
+    G4GenericMessenger* fMessenger; 
+    G4double fBeamEnergy;           
+    
+    void DefineCommands();          
+};
+
+#endif

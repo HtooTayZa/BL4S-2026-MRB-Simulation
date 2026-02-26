@@ -1,0 +1,24 @@
+# Initialize the Geant4 kernel
+/run/initialize
+
+# Open an OpenGL visualization window
+/vis/open OGL 600x600-0+0
+
+# Draw the geometry (your Hybrid Sandwich and Detectors)
+/vis/drawVolume
+
+# Set the camera angle to see the beamline clearly
+/vis/viewer/set/viewpointThetaPhi 60 150
+/vis/viewer/zoom 1.5
+
+# Draw particle trajectories smoothly
+/vis/scene/add/trajectories smooth
+
+# Color code the particles: 
+# Protons (blue), Neutrons (yellow), Pions/Electrons (red/green)
+/vis/modeling/trajectories/create/drawByCharge
+/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+
+# Keep the tracks on the screen at the end of the event
+/vis/scene/endOfEventAction accumulate

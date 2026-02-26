@@ -1,0 +1,37 @@
+#ifndef MRBDetectorConstruction_h
+#define MRBDetectorConstruction_h 1
+
+#include "G4VUserDetectorConstruction.hh"
+#include "G4LogicalVolume.hh"
+#include "G4Box.hh"
+#include "G4Tubs.hh"
+#include "G4GenericMessenger.hh"
+
+class G4VPhysicalVolume;
+class G4LogicalVolume;
+class G4Material;
+
+/// Detector construction class to define materials and geometry.
+class MRBDetectorConstruction : public G4VUserDetectorConstruction
+{
+  public:
+    MRBDetectorConstruction();
+    virtual ~MRBDetectorConstruction();
+
+    virtual G4VPhysicalVolume* Construct();
+    
+    // Assigns Sensitive Detectors
+    virtual void ConstructSDandField();
+
+    // Method to change material dynamically via UI Macro
+    void SetShieldMaterial(G4String materialName);
+
+    void SetShieldConfig(G4String materialName);
+
+  private:
+    void DefineCommands();
+    G4LogicalVolume* fLogicMRB; 
+    G4GenericMessenger* fMessenger;
+};
+
+#endif

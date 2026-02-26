@@ -1,0 +1,24 @@
+#include "MRBActionInitialization.hh"
+#include "MRBPrimaryGeneratorAction.hh"
+#include "MRBEventAction.hh"
+
+MRBActionInitialization::MRBActionInitialization()
+ : G4VUserActionInitialization()
+{}
+
+MRBActionInitialization::~MRBActionInitialization()
+{}
+
+void MRBActionInitialization::BuildForMaster() const
+{
+  // For multi-threading (optional for now)
+}
+
+void MRBActionInitialization::Build() const
+{
+  // 1. Register the 5 GeV Proton Beam
+  SetUserAction(new MRBPrimaryGeneratorAction());
+  
+  // 2. Register the Event Action (Multiplicity Tracker)
+  SetUserAction(new MRBEventAction());
+}

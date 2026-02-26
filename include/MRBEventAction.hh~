@@ -1,0 +1,34 @@
+#ifndef MRBEventAction_h
+#define MRBEventAction_h 1
+
+#include "G4UserEventAction.hh"
+#include "globals.hh"
+
+class G4Event;
+
+/// Event action class for the Spallation Simulation
+class MRBEventAction : public G4UserEventAction
+{
+  public:
+    MRBEventAction();
+    virtual ~MRBEventAction(); // The destructor must be defined in the .cc file
+
+    virtual void BeginOfEventAction(const G4Event* event);
+    virtual void EndOfEventAction(const G4Event* event);
+
+    // Methods to add hits and energy (called by Sensitive Detectors)
+    void AddHitDWC0() { fHitCountDWC0++; }
+    void AddHitDWC1() { fHitCountDWC1++; }
+    void AddHitDWC2() { fHitCountDWC2++; }
+    void AddCaloEnergy(G4double edep) { fTotalCaloEnergy += edep; }
+    void AddWendiNeutron() { fHitCountWendi++; } // Added for WENDI support
+
+  private:
+    G4int fHitCountDWC0;
+    G4int fHitCountDWC1;
+    G4int fHitCountDWC2;
+    G4double fTotalCaloEnergy;
+    G4int fHitCountWendi; // Added for WENDI support
+};
+
+#endif
