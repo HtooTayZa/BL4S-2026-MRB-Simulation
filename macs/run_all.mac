@@ -17,7 +17,7 @@
 /random/setSeeds 12345 67890
 
 # 2. BEAM CONFIGURATION (5 GeV Protons)
-/MRB/gun/energy 5 GeV
+/MRB/gun/momentum 5 GeV
 
 
 # =========================================================
@@ -26,20 +26,20 @@
 
 # --- RUN A: MRB 80/20 Baseline ---
 /MRB/setup/shieldConfig MRB_8020
-/analysis/setFileName SpallationData_MRB8020.csv
+/analysis/setFileName SpallationData_MRB8020.root
 /run/beamOn 100000
 
 # --- RUN B: MRB 60/40 Higher Mycelium ---
 /MRB/setup/shieldConfig MRB_6040
-/analysis/setFileName SpallationData_MRB6040.csv
+/analysis/setFileName SpallationData_MRB6040.root
 /run/beamOn 100000
 
 # --- RUN C: Lead Space Standard ---
 /MRB/setup/shieldConfig G4_Pb
-/analysis/setFileName SpallationData_Lead.csv
+/analysis/setFileName SpallationData_Lead.root
 /run/beamOn 100000
 
 # --- RUN D: HDPE Plastic Standard ---
 /MRB/setup/shieldConfig HDPE_Control
-/analysis/setFileName SpallationData_HDPE.csv
+/analysis/setFileName SpallationData_HDPE.root
 /run/beamOn 100000
