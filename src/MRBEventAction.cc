@@ -63,7 +63,7 @@ void MRBEventAction::EndOfEventAction(const G4Event* event)
         }
     }
 
-    // --- Original Data Recording Logic (Restored) ---
+// --- Original Data Recording Logic (Restored) ---
     // Only record the event if there was some interaction detected downstream.
     if (fHitCountDWC0 > 0 || fHitCountDWC1 > 0 || fHitCountDWC2 > 0 || fTotalCaloEnergy > 0. || fHitCountWendi > 0) {
         auto analysisManager = G4AnalysisManager::Instance();
@@ -75,6 +75,8 @@ void MRBEventAction::EndOfEventAction(const G4Event* event)
         analysisManager->FillNtupleIColumn(3, fHitCountDWC2);
         analysisManager->FillNtupleDColumn(4, fTotalCaloEnergy / MeV);
         analysisManager->FillNtupleIColumn(5, fHitCountWendi); 
+        analysisManager->FillNtupleIColumn(6, T_charged);
+        analysisManager->FillNtupleIColumn(7, T_neutral);
         
         // Commit the row to the file
         analysisManager->AddNtupleRow();
