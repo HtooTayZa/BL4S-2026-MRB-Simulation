@@ -205,6 +205,15 @@ void MRBDetectorConstruction::ConstructSDandField()
     MRBWendiSD* wendiSector = new MRBWendiSD("WENDI_SD", const_cast<MRBEventAction*>(eventAction));
     G4SDManager::GetSDMpointer()->AddNewDetector(wendiSector);
     SetSensitiveDetector("WENDI", wendiSector);
+
+    // Assign S_in Scintillator Sensitive Detector
+    MRBScintillatorSD* sinSector = new MRBScintillatorSD("Sin_SD", const_cast<MRBEventAction*>(eventAction));
+    G4SDManager::GetSDMpointer()->AddNewDetector(sinSector);
+    SetSensitiveDetector("S_in", sinSector);
+
+    // Assign Veto Scintillator Sensitive Detector
+    MRBScintillatorSD* vetoSector = new MRBScintillatorSD("Veto_SD", const_cast<MRBEventAction*>(eventAction));
+    G4SDManager::GetSDMpointer()->AddNewDetector(vetoSector);
+    SetSensitiveDetector("Veto", vetoSector);
     
-    // NOTE: S_in and Veto Scintillator Sensitive Detectors will be initialized here next.
 }
