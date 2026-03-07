@@ -4,6 +4,7 @@
 #include "G4SDManager.hh"
 #include "G4Neutron.hh"
 
+G4ThreadLocal G4Allocator<MRBWendiHit>* MRBWendiHitAllocator = nullptr;
 MRBWendiSD::MRBWendiSD(const G4String& name)
 : G4VSensitiveDetector(name), fHitsCollection(nullptr) 
 {
