@@ -4,12 +4,15 @@
 #include "G4SystemOfUnits.hh"
 #include "G4AnalysisManager.hh"
 #include "G4ios.hh"
+#include "MRBWendiHit.hh"
+#include "G4SDManager.hh"
+#include "G4HCofThisEvent.hh"
 
 MRBEventAction::MRBEventAction()
 : G4UserEventAction(), 
   fHitCountDWC0(0), fHitCountDWC1(0), fHitCountDWC2(0), 
   fTotalCaloEnergy(0.), fHitCountWendi(0),
-  fSinTime(-1.0), fVetoTime(-1.0), fCalHit(false)
+  fSinTime(-1.0), fVetoTime(-1.0), fCalHit(false), // FIX: Added comma
   fWendiHCID(-1) 
 {}
 
@@ -44,6 +47,24 @@ void MRBEventAction::RegisterVetoHit(G4double time)
 void MRBEventAction::EndOfEventAction(const G4Event* event)
 {
     G4int eventID = event->GetEventID();
+
+    // Get the ID for the WENDI hits collection (only needs to be found once)
+    if (fWendiHCID == -1) {
+        fWendiHCID = G4SDManager::GetSDMpointer()->GetCollectionID("WendiHitsCollection");
+    }
+
+    // FIX: Safely retrieve the Hits Collection of This Event (HCE) container first
+    G4HCofThisEvent* hce = event->GetHCofThisEvent();
+    
+    // Only attempt to read hits if the HCE container exists
+    if (hce) {
+        auto wendiHC = static_cast<MRBWendiHitsCollection*>(hce->GetHC(fWendiHCID));
+        
+        // Count the neutrons
+        if (wendiHC) {
+            fHitCountWendi = wendiHC->entries();
+        }
+    }
     
     // Print progress to the console every 10,000 events (Restored)
     if (eventID % 10000 == 0 && eventID != 0) {
