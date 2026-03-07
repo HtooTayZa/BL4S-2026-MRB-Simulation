@@ -6,7 +6,7 @@
 #include "Randomize.hh"
 
 MRBPrimaryGeneratorAction::MRBPrimaryGeneratorAction()
-: G4VUserPrimaryGeneratorAction(), fParticleGun(0), fMessenger(0), fBeamEnergy(5.0*GeV)
+: G4VUserPrimaryGeneratorAction(), fParticleGun(0), fMessenger(0), fBeamMomentum(5.0*GeV)
 {
   // Initialize the particle gun to shoot 1 particle per event
   fParticleGun  = new G4ParticleGun(1);
@@ -15,7 +15,7 @@ MRBPrimaryGeneratorAction::MRBPrimaryGeneratorAction()
   // Set the primary particle to a proton (simulating Galactic Cosmic Rays)
   fParticleGun->SetParticleDefinition(particleTable->FindParticle("proton"));
   
-  // Initialize the UI command /MRB/gun/energy
+  // Initialize the UI command /MRB/gun/momentum
   DefineCommands(); 
 }
 
@@ -27,27 +27,30 @@ MRBPrimaryGeneratorAction::~MRBPrimaryGeneratorAction()
 
 void MRBPrimaryGeneratorAction::DefineCommands()
 {
-  // Allow dynamic adjustment of the primary beam energy from macros
+  // Allow dynamic adjustment of the primary beam momentum from macros
   fMessenger = new G4GenericMessenger(this, "/MRB/gun/", "Primary generator control");
-  auto& energyCmd = fMessenger->DeclarePropertyWithUnit("energy", "GeV", fBeamEnergy, "Set mean beam energy.");
-  energyCmd.SetParameterName("Energy", true);
-  energyCmd.SetDefaultValue("5.0");
+  auto& momCmd = fMessenger->DeclarePropertyWithUnit("momentum", "GeV", fBeamMomentum, "Set mean beam momentum.");
+  momCmd.SetParameterName("Momentum", true);
+  momCmd.SetDefaultValue("5.0");
 }
 
 void MRBPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   // --- Beam Realism Setup ---
 
-  // 1. Spot Size: 2 cm diameter Gaussian distribution (sigma = 0.5 cm)
-  G4double beam_sigma_pos = 0.5 * cm; 
+  // 1. Spot Size: 2 mm diameter Gaussian distribution (sigma = 1.0 mm)
+  G4double beam_sigma_pos = 1.0 * mm; 
   G4double x0 = G4RandGauss::shoot(0.0, beam_sigma_pos);
   G4double y0 = G4RandGauss::shoot(0.0, beam_sigma_pos);
-  // Start the beam 100 cm upstream of the target origin
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0, y0, -100.*cm));
+  
+  // Start the beam 150 cm upstream of the target origin to clear the S_in scintillator at Z = -1.00 m
+  fParticleGun->SetParticlePosition(G4ThreeVector(x0, y0, -150.*cm));
 
-  // 2. Energy Spread: 2% of the primary beam energy
-  G4double energy_spread = fBeamEnergy * 0.02; 
-  fParticleGun->SetParticleEnergy(G4RandGauss::shoot(fBeamEnergy, energy_spread));
+  // 2. Momentum Setup
+  // We use SetParticleMomentum to accurately reflect the 5.0 GeV/c beam.
+  // Geant4 will automatically calculate the correct 4.15 GeV kinetic energy.
+  // Energy spread is removed to simulate a monoenergetic beam per the technical report.
+  fParticleGun->SetParticleMomentum(fBeamMomentum); 
 
   // 3. Beam Divergence: 2 milliradians applied via Gaussian scattering on X and Y angles
   G4double divergence = 0.002 * rad;
@@ -60,6 +63,4 @@ void MRBPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   // Generate the vertex for this specific event
   fParticleGun->GeneratePrimaryVertex(anEvent);
-}
-
 }
