@@ -73,16 +73,18 @@ G4VPhysicalVolume* MRBDetectorConstruction::Construct()
     // Fetch standard materials from the NIST database
     G4NistManager* nist = G4NistManager::Instance();
     G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
-    G4Material* al_mat = nist->FindOrBuildMaterial("G4_Al");
     G4Material* pb_mat = nist->FindOrBuildMaterial("G4_Pb");
     G4Material* lead_glass = nist->FindOrBuildMaterial("G4_GLASS_LEAD");
+    G4Material* plastic_scint = nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
     // Define custom gas mixtures for detectors
     G4Material* argon = nist->FindOrBuildMaterial("G4_Ar");
     G4Material* co2 = nist->FindOrBuildMaterial("G4_CARBON_DIOXIDE");
+    
+    // UPDATED: DWC Gas is now 93% Argon, 7% CO2 per BL4S operational standard
     G4Material* dwc_gas = new G4Material("DWC_Gas", 1.55*mg/cm3, 2);
-    dwc_gas->AddMaterial(argon, 70*perCent);
-    dwc_gas->AddMaterial(co2, 30*perCent);
+    dwc_gas->AddMaterial(argon, 93*perCent);
+    dwc_gas->AddMaterial(co2, 7*perCent);
 
     // Fetch elements required for custom bio-composites
     G4Element* elO  = nist->FindOrBuildElement("O");
@@ -94,22 +96,27 @@ G4VPhysicalVolume* MRBDetectorConstruction::Construct()
     G4Element* elMg = nist->FindOrBuildElement("Mg");
     G4Element* elH  = nist->FindOrBuildElement("H");
     G4Element* elN  = nist->FindOrBuildElement("N");
+    G4Element* elP  = nist->FindOrBuildElement("P"); // Added Phosphorus for Casein
+    G4Element* elS  = nist->FindOrBuildElement("S"); // Added Sulfur for Casein and MGS-1 Sulfates
 
     // Define MRB 80/20 configuration (80% Regolith, 20% Biopolymer)
-    G4Material* mrb_8020_mat = new G4Material("MRB_8020", 1.10 * g/cm3, 9);
-    mrb_8020_mat->AddElement(elO, 43.6*perCent); mrb_8020_mat->AddElement(elSi, 16.8*perCent);
-    mrb_8020_mat->AddElement(elFe, 10.4*perCent); mrb_8020_mat->AddElement(elC, 9.2*perCent);
-    mrb_8020_mat->AddElement(elAl, 6.4*perCent); mrb_8020_mat->AddElement(elCa, 6.4*perCent);
-    mrb_8020_mat->AddElement(elMg, 4.8*perCent); mrb_8020_mat->AddElement(elH, 1.3*perCent);
-    mrb_8020_mat->AddElement(elN, 1.1*perCent);
+    // Adjusted percentages to incorporate P and S traces
+    G4Material* mrb_8020_mat = new G4Material("MRB_8020", 1.10 * g/cm3, 11);
+    mrb_8020_mat->AddElement(elO, 43.4*perCent); mrb_8020_mat->AddElement(elSi, 16.5*perCent);
+    mrb_8020_mat->AddElement(elFe, 10.2*perCent); mrb_8020_mat->AddElement(elC, 9.0*perCent);
+    mrb_8020_mat->AddElement(elAl, 6.2*perCent); mrb_8020_mat->AddElement(elCa, 6.2*perCent);
+    mrb_8020_mat->AddElement(elMg, 4.6*perCent); mrb_8020_mat->AddElement(elH, 1.3*perCent);
+    mrb_8020_mat->AddElement(elN, 1.1*perCent); mrb_8020_mat->AddElement(elP, 0.3*perCent); 
+    mrb_8020_mat->AddElement(elS, 1.2*perCent);
 
     // Define MRB 60/40 configuration (60% Regolith, 40% Biopolymer)
-    G4Material* mrb_6040_mat = new G4Material("MRB_6040", 0.87 * g/cm3, 9);
-    mrb_6040_mat->AddElement(elO, 43.2*perCent); mrb_6040_mat->AddElement(elC, 18.4*perCent);
-    mrb_6040_mat->AddElement(elSi, 12.6*perCent); mrb_6040_mat->AddElement(elFe, 7.8*perCent);
-    mrb_6040_mat->AddElement(elAl, 4.8*perCent); mrb_6040_mat->AddElement(elCa, 4.8*perCent);
-    mrb_6040_mat->AddElement(elMg, 3.6*perCent); mrb_6040_mat->AddElement(elH, 2.6*perCent);
-    mrb_6040_mat->AddElement(elN, 2.2*perCent);
+    G4Material* mrb_6040_mat = new G4Material("MRB_6040", 0.87 * g/cm3, 11);
+    mrb_6040_mat->AddElement(elO, 43.0*perCent); mrb_6040_mat->AddElement(elC, 18.2*perCent);
+    mrb_6040_mat->AddElement(elSi, 12.2*perCent); mrb_6040_mat->AddElement(elFe, 7.5*perCent);
+    mrb_6040_mat->AddElement(elAl, 4.5*perCent); mrb_6040_mat->AddElement(elCa, 4.5*perCent);
+    mrb_6040_mat->AddElement(elMg, 3.4*perCent); mrb_6040_mat->AddElement(elH, 2.6*perCent);
+    mrb_6040_mat->AddElement(elN, 2.2*perCent); mrb_6040_mat->AddElement(elP, 0.6*perCent); 
+    mrb_6040_mat->AddElement(elS, 1.3*perCent);
 
     // Define HDPE Control Material
     G4Material* hdpe_mat = new G4Material("HDPE_Control", 0.97 * g/cm3, 2);
@@ -124,50 +131,57 @@ G4VPhysicalVolume* MRBDetectorConstruction::Construct()
 
     // --- Geometry Construction ---
 
-    // 1. Experimental Hall (World Volume)
-    G4double world_size = 3.0 * m;
+    // 1. Experimental Hall (World Volume) - Increased to 10m to fit beamline
+    G4double world_size = 10.0 * m;
     G4Box* solidWorld = new G4Box("World", world_size/2, world_size/2, world_size/2);
     G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld, world_mat, "World");
     G4VPhysicalVolume* physWorld = new G4PVPlacement(0, G4ThreeVector(), logicWorld, "World", 0, false, 0, true);
 
-    // 2. Spacecraft Aluminum Hull (Front of the target)
-    G4double al_thickness = 10.0 * mm;
-    G4Box* solidAl = new G4Box("AluminumHull", 10*cm, 10*cm, al_thickness/2);
-    G4LogicalVolume* logicAl = new G4LogicalVolume(solidAl, al_mat, "AluminumHull");
-    new G4PVPlacement(0, G4ThreeVector(0, 0, 0), logicAl, "AluminumHull", logicWorld, false, 0, true);
-
-    // 3. Shielding Material (Dynamically sizable MRB/HDPE/Pb target)
+    // 2. Shielding Material (Dynamically sizable MRB/HDPE/Pb target)
+    // Placed exactly at Z = 0.00 m
     G4double initial_thickness = 12.5 * cm;
-    G4double shield_z_pos = (al_thickness/2) + (initial_thickness/2); 
     fSolidShield = new G4Box("TestShield", 10*cm, 10*cm, initial_thickness/2);
     fLogicMRB = new G4LogicalVolume(fSolidShield, mrb_8020_mat, "TestShield");
-    new G4PVPlacement(0, G4ThreeVector(0, 0, shield_z_pos), fLogicMRB, "TestShield", logicWorld, false, 0, true);
+    new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicMRB, "TestShield", logicWorld, false, 0, true);
 
-    G4double shield_back_face_z = shield_z_pos + (initial_thickness / 2.0);
+    // 3. Trigger Scintillators (S_in and Veto)
+    G4Box* solidScint = new G4Box("Scintillator", 10.0*cm, 10.0*cm, 0.5*cm);
+    G4LogicalVolume* logicScint = new G4LogicalVolume(solidScint, plastic_scint, "ScintillatorLV");
+    
+    // Upstream Scintillator (S_in) at Z = -1.00 m
+    new G4PVPlacement(0, G4ThreeVector(0, 0, -1.00*m), logicScint, "S_in", logicWorld, false, 0, true);
+    
+    // Downstream Scintillator (Veto) at Z = +3.25 m
+    new G4PVPlacement(0, G4ThreeVector(0, 0, 3.25*m), logicScint, "Veto", logicWorld, false, 1, true);
 
     // 4. Delay Wire Chambers (DWCs) for on-axis charged particle tracking
     G4Box* solidDWC = new G4Box("DWC", 5.0*cm, 5.0*cm, 0.5*cm);
     G4LogicalVolume* logicDWC = new G4LogicalVolume(solidDWC, dwc_gas, "DWC");
-    // Place 3 DWCs downstream of the target
-    new G4PVPlacement(0, G4ThreeVector(0, 0, shield_back_face_z + 20*cm), logicDWC, "DWC0", logicWorld, false, 0, true);
-    new G4PVPlacement(0, G4ThreeVector(0, 0, shield_back_face_z + 35*cm), logicDWC, "DWC1", logicWorld, false, 1, true);
-    new G4PVPlacement(0, G4ThreeVector(0, 0, shield_back_face_z + 50*cm), logicDWC, "DWC2", logicWorld, false, 2, true);
+    
+    // Placed at absolute coordinates
+    new G4PVPlacement(0, G4ThreeVector(0, 0, -0.50*m), logicDWC, "DWC0", logicWorld, false, 0, true);
+    new G4PVPlacement(0, G4ThreeVector(0, 0, 1.00*m), logicDWC, "DWC1", logicWorld, false, 1, true);
+    new G4PVPlacement(0, G4ThreeVector(0, 0, 3.00*m), logicDWC, "DWC2", logicWorld, false, 2, true);
 
-    // 5. 4x4 Lead-Glass Calorimeter Array for energy deposition measurement
+    // 5. WENDI Detector for off-axis neutral particle (neutron) counting
+    G4Tubs* solidWendi = new G4Tubs("WENDI", 0., 10.0*cm, 12.5*cm, 0., 360.*deg);
+    G4LogicalVolume* logicWendi = new G4LogicalVolume(solidWendi, wendi_gas, "WENDI");
+    
+    // Placed downstream and laterally off the primary beam axis 
+    new G4PVPlacement(0, G4ThreeVector(1.00*m, 0, 2.00*m), logicWendi, "WENDI_Phys", logicWorld, false, 0, true);
+
+    // 6. 4x4 Lead-Glass Calorimeter Array for energy deposition measurement
     G4Box* solidCalo = new G4Box("CaloBlock", 5.0*cm, 5.0*cm, 18.5*cm);
     G4LogicalVolume* logicCalo = new G4LogicalVolume(solidCalo, lead_glass, "CaloBlock");
-    G4double calo_z_pos = shield_back_face_z + 80*cm + 18.5*cm; 
+    
+    // Placed at the endpoint
+    G4double calo_z_pos = 4.00 * m; 
     G4int copyNo = 0;
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             new G4PVPlacement(0, G4ThreeVector((i - 1.5)*10*cm, (j - 1.5)*10*cm, calo_z_pos), logicCalo, "Calorimeter", logicWorld, false, copyNo++, true);
         }
     }
-
-    // 6. WENDI Detector for off-axis neutral particle (neutron) counting
-    G4Tubs* solidWendi = new G4Tubs("WENDI", 0., 10.0*cm, 12.5*cm, 0., 360.*deg);
-    G4LogicalVolume* logicWendi = new G4LogicalVolume(solidWendi, wendi_gas, "WENDI");
-    new G4PVPlacement(0, G4ThreeVector(25.*cm, 0, shield_back_face_z + 30.*cm), logicWendi, "WENDI_Phys", logicWorld, false, 0, true);
 
     return physWorld;
 }
@@ -191,6 +205,6 @@ void MRBDetectorConstruction::ConstructSDandField()
     MRBWendiSD* wendiSector = new MRBWendiSD("WENDI_SD", const_cast<MRBEventAction*>(eventAction));
     G4SDManager::GetSDMpointer()->AddNewDetector(wendiSector);
     SetSensitiveDetector("WENDI", wendiSector);
-}
-
+    
+    // NOTE: S_in and Veto Scintillator Sensitive Detectors will be initialized here next.
 }
