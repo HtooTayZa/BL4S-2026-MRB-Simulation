@@ -202,7 +202,7 @@ void MRBDetectorConstruction::ConstructSDandField()
 
     // Assign WENDI Sensitive Detector, linked to the EventAction to register neutron counts
     const MRBEventAction* eventAction = static_cast<const MRBEventAction*>(G4RunManager::GetRunManager()->GetUserEventAction());
-    MRBWendiSD* wendiSector = new MRBWendiSD("WENDI_SD", const_cast<MRBEventAction*>(eventAction));
+    MRBWendiSD* wendiSector = new MRBWendiSD("WENDI_SD");
     G4SDManager::GetSDMpointer()->AddNewDetector(wendiSector);
     SetSensitiveDetector("WENDI", wendiSector);
 
