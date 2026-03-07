@@ -10,6 +10,7 @@ MRBEventAction::MRBEventAction()
   fHitCountDWC0(0), fHitCountDWC1(0), fHitCountDWC2(0), 
   fTotalCaloEnergy(0.), fHitCountWendi(0),
   fSinTime(-1.0), fVetoTime(-1.0), fCalHit(false)
+  fWendiHCID(-1) 
 {}
 
 MRBEventAction::~MRBEventAction() {}
