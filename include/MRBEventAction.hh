@@ -19,7 +19,11 @@ class MRBEventAction : public G4UserEventAction
     void AddHitDWC0() { fHitCountDWC0++; }
     void AddHitDWC1() { fHitCountDWC1++; }
     void AddHitDWC2() { fHitCountDWC2++; }
-    void AddCaloEnergy(G4double edep) { fTotalCaloEnergy += edep; }
+    
+    void AddCaloEnergy(G4double edep) { 
+    fTotalCaloEnergy += edep; 
+    if (fTotalCaloEnergy > 0.0) fCalHit = true; // Flips automatically
+    }
    
     // --- New Functionality: Hardware Trigger Logic ---
     void RegisterSinHit(G4double time);
