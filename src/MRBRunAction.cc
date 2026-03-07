@@ -27,9 +27,8 @@ MRBRunAction::MRBRunAction() : G4UserRunAction() {
 MRBRunAction::~MRBRunAction() {}
 
 void MRBRunAction::BeginOfRunAction(const G4Run*) { 
-    // Open the output file at the start of the run.
-    // Specifying a filename here automatically appends .root
-    G4AnalysisManager::Instance()->OpenFile("MRB_Simulation_Data"); 
+    // Leave it blank to allow the macro to dictate the filename
+    G4AnalysisManager::Instance()->OpenFile(); 
 }
 
 void MRBRunAction::EndOfRunAction(const G4Run*) {
