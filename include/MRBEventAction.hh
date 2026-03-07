@@ -20,14 +20,14 @@ class MRBEventAction : public G4UserEventAction
     void AddHitDWC1() { fHitCountDWC1++; }
     void AddHitDWC2() { fHitCountDWC2++; }
     void AddCaloEnergy(G4double edep) { fTotalCaloEnergy += edep; }
-    void AddWendiNeutron() { fHitCountWendi++; }
-
+   
     // --- New Functionality: Hardware Trigger Logic ---
     void RegisterSinHit(G4double time);
     void RegisterVetoHit(G4double time);
     void SetCalHit(G4bool hit) { fCalHit = hit; }
 
   private:
+
     // --- Existing Variables ---
     G4int fHitCountDWC0;
     G4int fHitCountDWC1;
@@ -39,6 +39,7 @@ class MRBEventAction : public G4UserEventAction
     G4double fSinTime;
     G4double fVetoTime;
     G4bool   fCalHit;
+    G4int fWendiHCID;
 };
 
 #endif
